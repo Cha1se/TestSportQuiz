@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.provider.CalendarContract.Colors
 import android.util.Log
 import android.view.View
@@ -12,6 +13,7 @@ import android.widget.Toast
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 
 class GameActivity : AppCompatActivity() {
 
@@ -73,7 +75,37 @@ class GameActivity : AppCompatActivity() {
         }
 
         getDataFromDB()
+        timer()
 
+    }
+
+    fun timer() {
+        var timeMills = 120000L
+        var timer = object  : CountDownTimer(timeMills, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                val min = TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished) % 60
+                val sec =
+                    TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) % 60 % 60
+
+                var min2 = min.toString()
+                var sec2 = sec.toString()
+
+                if (min < 10) {
+                    min2 = "0$min"
+                }
+                if (sec < 10) {
+                    sec2 = "0$sec"
+                }
+                timerGame.text = "$min2:$sec2"
+            }
+
+            override fun onFinish() {
+                Toast.makeText(applicationContext, "Время вышло", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, "Вы заработали - ${rightAnswers} очков!", Toast.LENGTH_LONG)
+                    .show()
+                setScore()
+            }
+        }.start()
     }
 
     fun setScore() {
